@@ -1,0 +1,38 @@
+name: Evening inverter reset
+
+on:
+  schedule:
+    - cron: '30 16 * * *'  # 16:30 UTC = 19:30 Kyiv (summer) — after solar output drops
+  workflow_dispatch:        # allows manual trigger from GitHub Actions UI
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    env:
+      DEYE_APP_ID: ${{ secrets.DEYE_APP_ID }}
+      DEYE_APP_SECRET: ${{ secrets.DEYE_APP_SECRET }}
+      DEYE_EMAIL: ${{ secrets.DEYE_EMAIL }}
+      DEYE_PASSWORD: ${{ secrets.DEYE_PASSWORD }}
+      DEYE_DEVICE_SN: ${{ secrets.DEYE_DEVICE_SN }}
+      LATITUDE: ${{ secrets.LATITUDE }}
+      LONGITUDE: ${{ secrets.LONGITUDE }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DRY_RUN: ${{ vars.DRY_RUN }}  # set to "true" in repo variables to test without touching the inverter
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r ../requirements.txt
+
+      - name: Reset to Zero Export
+        run: python run_evening.py
