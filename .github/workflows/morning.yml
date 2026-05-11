@@ -21,6 +21,8 @@ jobs:
       LONGITUDE: ${{ secrets.LONGITUDE }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       DRY_RUN: ${{ vars.DRY_RUN }}  # set to "true" in repo variables to test without touching the inverter
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
     steps:
       - uses: actions/checkout@v4
