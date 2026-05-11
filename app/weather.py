@@ -1,5 +1,8 @@
+import logging
 import httpx
 from config import LATITUDE, LONGITUDE
+
+logger = logging.getLogger(__name__)
 
 
 def get_forecast() -> dict:
@@ -13,6 +16,7 @@ def get_forecast() -> dict:
         "timezone": "auto",
         "forecast_days": 1,
     }
+    logger.debug("Fetching forecast for lat=%s lon=%s", LATITUDE, LONGITUDE)
     response = httpx.get(url, params=params, timeout=15)
     response.raise_for_status()
     data = response.json()

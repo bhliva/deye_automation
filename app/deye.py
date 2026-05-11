@@ -1,4 +1,5 @@
 import logging
+import os
 import httpx
 from config import DEYE_APP_ID, DEYE_APP_SECRET, DEYE_EMAIL, DEYE_PASSWORD, DEYE_DEVICE_SN, DEYE_HOST
 
@@ -7,7 +8,12 @@ logger = logging.getLogger(__name__)
 WORK_MODE_SELLING_FIRST = 0
 WORK_MODE_ZERO_EXPORT_CT = 2
 
-DRY_RUN = False
+_MODE_NAMES = {
+    WORK_MODE_SELLING_FIRST: "SELLING_FIRST",
+    WORK_MODE_ZERO_EXPORT_CT: "ZERO_EXPORT_CT",
+}
+
+DRY_RUN = os.getenv("DRY_RUN", "").lower() in ("1", "true")
 
 
 def get_token() -> str:
@@ -23,7 +29,7 @@ def get_token() -> str:
 
 
 def set_mode(mode: int) -> None:
-    mode_name = "SELLING_FIRST" if mode == WORK_MODE_SELLING_FIRST else "ZERO_EXPORT_CT"
+    mode_name = _MODE_NAMES.get(mode, str(mode))
     if DRY_RUN:
         logger.info("[DRY RUN] Would set inverter to %s (WORK_MODE=%s)", mode_name, mode)
         return
