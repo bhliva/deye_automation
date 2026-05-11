@@ -4,12 +4,14 @@ import os
 import deye
 from ai_decision import decide
 from deye import set_selling_first
+from notify import send
 from weather import get_forecast
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s — %(message)s")
 logger = logging.getLogger(__name__)
 
-if os.getenv("DRY_RUN", "").lower() in ("1", "true"):
+dry_run = os.getenv("DRY_RUN", "").lower() in ("1", "true")
+if dry_run:
     deye.DRY_RUN = True
     logger.info("DRY RUN mode — no inverter changes will be made")
 
@@ -22,7 +24,18 @@ logger.info(
     decision["sell_today"], decision["sell_from"], decision["sell_until"],
 )
 
+prefix = "[DRY RUN] " if dry_run else ""
+
 if decision["sell_today"]:
     set_selling_first()
+    send(
+        f"{prefix}Switched to Selling First mode\n"
+        f"Sell window: {decision['sell_from']} - {decision['sell_until']}\n\n"
+        f"{decision['reasoning']}"
+    )
 else:
     logger.info("Staying in Zero Export mode, no changes made")
+    send(
+        f"{prefix}Staying in Zero Export mode\n\n"
+        f"{decision['reasoning']}"
+    )
